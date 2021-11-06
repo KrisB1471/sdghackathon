@@ -1,0 +1,118 @@
+---
+title: "SDG_Hackathon"
+author: "Grace Wangui Muhoro and Christian Aeschbacher"
+date: "11/5/2021"
+output: html_document
+---
+
+## require_packages
+```{r require_packages}
+require(tidyverse)
+
+```
+
+## load_and_merge_datasets
+```{r load_and_merge_datasets}
+df_sdg <- read_csv("sdg_hackathon_data.zip")
+df_supp <- read_csv("supplementary_data.zip")
+df_full <- df_sdg %>%
+  left_join(df_supp)
+
+```
+
+## colnames_of_df_full
+```{r colnames_of_df_full}
+colnames(df_full)
+
+```
+
+## crating_df_subs
+```{r crating_df_subs}
+# ref: https://hollyemblem.medium.com/training-and-test-dataset-creation-with-dplyr-41d9aa7eab31
+set.seed(1234)
+df_sub20_percent <- df_full %>% sample_frac(.2)
+df_sub01_percent <- df_sub20_percent %>% sample_frac(.01)
+rm(df_full, df_sdg, df_supp)
+# rm(df_sub20_percent, df_sub01_percent)
+
+```
+
+## str(df_sub01_percent)
+```{r str(df_sub01_percent)}
+str(df_sub01_percent)
+
+```
+
+## tableS(df_sub01_percent$*)
+```{r table(df_sub01_percent$hits)}
+table(df_sub01_percent$hits)
+
+```
+
+## character_to_factor
+```{r character_to_factor}
+# ref: https://gist.github.com/ramhiser/93fe37be439c480dc26c4bed8aab03dd#gistcomment-3376653
+ df_sub01_factor <- df_sub01_percent %>% mutate(across(where(is_character), as_factor))
+# str(df_sub01_factor)
+```
+
+## table(df_sub01_factor$sdg)
+```{r table(df_sub01_factor$sdg)}
+table(df_sub01_factor$sdg)
+
+```
+
+## sdg_colors
+```{r sdg_colors}
+sdg_colors <- c(
+  SDG-01 = "#EC1C2E", 
+  SDG-02 = "#D1A028", 
+  SDG-03 = "#279A4A", 
+  SDG-04 = "#C61E32", 
+  SDG-05 = "#EE422C", 
+  SDG-06 = "#02AEDE", 
+  SDG-07 = "#FDB714", 
+  SDG-08 = "#8C1937", 
+  SDG-09 = "#F36C28", 
+  SDG-10 = "#E41586", 
+  SDG-11 = "#FB9E27", 
+  SDG-12 = "#D18D2B", 
+  SDG-13 = "#48783F", 
+  SDG-14 = "#017DB8", 
+  SDG-15 = "#5CBA46", 
+  SDG-16 = "#075588", 
+  SDG-17 = "#183768"
+  )
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r ignore}
+# table(df_full$institution_country)
+# df_subq2 <- df_full %>% 
+#   filter(institution_country == "Switzerland")
+# table(df_subq2$institution_country)
+# rm(df_subq2)
+
+```
+
+
+
