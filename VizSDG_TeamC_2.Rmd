@@ -1,0 +1,103 @@
+---
+title: "[24h SDG Hackathon](https://www.sdghackathon.io/)"
+subtitle: "Visualizing Swiss Sustainability Research"
+author: "Grace Wangui Muhoro and Christian Aeschbacher"
+date: "11/5/2021 - 11/6/2021, 5:00pm CET"
+output: 
+  html_document:
+    toc: TRUE
+    # toc_float: TRUE
+---
+
+# About
+
+## Goals
+
+The [United Nations’ Sustainable Development Goals](https://sdgs.un.org/goals) (SDGs) have become an important guideline for organizations to monitor and plan their contributions to social, economic, and environmental transformations. Efforts to monitor the SDGs in the output of academic organizations have so far been spearheaded by for-profit organizations with methodologies that are only partly publicly available and cannot be easily applied beyond academic publishing databases. To alleviate these shortcomings, [we](https://www.sdghackathon.io/#organizers) have developed [text2sdg](https://github.com/dwulff/text2sdg), an open-source solution that lets users detect SDGs in any kind of text using a total of five different systems of search queries.
+
+### The goal of this data visualization hackathon is twofold:
+
+1. To better understand the commonalities and differences between the five query-based SDG labeling systems.
+
+2. To characterize the efforts of the Swiss research landscape to address the UN SDGs.
+
+Participants stand to win prizes by producing data visualizations that address either or both of the goals. The basis of participants' visualizations is the p3 database of the [Swiss National Science Foundation](https://www.snf.ch/en) (SNSF), which includes descriptions of research projects that we labeled using the [text2sdg](https://github.com/dwulff/text2sdg) package. More information on the data and the query systems, as well as access to the data is provided via GitHub ([Link](https://github.com/CorrelAidSwitzerland/sdghackathon)).
+
+# Analysis
+
+## Required packages
+```{r required_packages, message=FALSE, warning=FALSE}
+require(tidyverse)
+require(gridExtra)
+
+```
+
+## Loading and merging datasets
+```{r load_and_merge_datasets, message=FALSE, warning=FALSE}
+df_sdg <- read_csv("sdg_hackathon_data.zip")
+df_supp <- read_csv("supplementary_data.zip")
+df_full <- df_sdg %>%
+  left_join(df_supp)
+rm(df_sdg, df_supp)
+```
+
+## Inspecting the dataset
+```{r inspect_dataset}
+colnames(df_full)
+str(df_full)
+
+```
+
+
+
+
+
+
+<!-- ## sdg_colors -->
+<!-- ```{r sdg_colors} -->
+<!-- # renaming "sdg" variable observations -->
+<!-- df_full$sdg <- df_full$sdg %>% -->
+<!--   str_replace_all( -->
+<!--     c( -->
+<!--   "SDG-01" = "SDG_01",  -->
+<!--   "SDG-02" = "SDG_02",  -->
+<!--   "SDG-03" = "SDG_03",  -->
+<!--   "SDG-04" = "SDG_04",  -->
+<!--   "SDG-05" = "SDG_05",  -->
+<!--   "SDG-06" = "SDG_06",  -->
+<!--   "SDG-07" = "SDG_07",  -->
+<!--   "SDG-08" = "SDG_08",  -->
+<!--   "SDG-09" = "SDG_09",  -->
+<!--   "SDG-10" = "SDG_10",  -->
+<!--   "SDG-11" = "SDG_11",  -->
+<!--   "SDG-12" = "SDG_12",  -->
+<!--   "SDG-13" = "SDG_13",  -->
+<!--   "SDG-14" = "SDG_14",  -->
+<!--   "SDG-15" = "SDG_15",  -->
+<!--   "SDG-16" = "SDG_16",  -->
+<!--   "SDG-17" = "SDG_17" -->
+<!--   )) -->
+
+<!-- # determining color scheme based on hex-codes -->
+<!-- sdg_colors <- c( -->
+<!--   SDG_01 = "#EC1C2E",  -->
+<!--   SDG_02 = "#D1A028",  -->
+<!--   SDG_03 = "#279A4A",  -->
+<!--   SDG_04 = "#C61E32",  -->
+<!--   SDG_05 = "#EE422C",  -->
+<!--   SDG_06 = "#02AEDE",  -->
+<!--   SDG_07 = "#FDB714",  -->
+<!--   SDG_08 = "#8C1937",  -->
+<!--   SDG_09 = "#F36C28",  -->
+<!--   SDG_10 = "#E41586",  -->
+<!--   SDG_11 = "#FB9E27",  -->
+<!--   SDG_12 = "#D18D2B",  -->
+<!--   SDG_13 = "#48783F",  -->
+<!--   SDG_14 = "#017DB8",  -->
+<!--   SDG_15 = "#5CBA46",  -->
+<!--   SDG_16 = "#075588",  -->
+<!--   SDG_17 = "#183768" -->
+<!--   ) -->
+
+<!-- ``` -->
+
