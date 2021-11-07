@@ -1,0 +1,205 @@
+---
+title: "SDG_Hackathon"
+author: "Grace Wangui Muhoro and Christian Aeschbacher"
+date: "11/5/2021"
+output: html_document
+---
+
+## require_packages
+```{r require_packages, echo=FALSE, include=FALSE}
+require(tidyverse)
+require(gridExtra)
+
+```
+
+## load_and_merge_datasets
+```{r load_and_merge_datasets, echo=FALSE, include=FALSE}
+df_sdg <- read_csv("sdg_hackathon_data.zip")
+df_supp <- read_csv("supplementary_data.zip")
+df_full <- df_sdg %>%
+  left_join(df_supp)
+rm(df_sdg, df_supp)
+```
+
+## colnames_of_df_full
+```{r colnames_of_df_full, echo=FALSE, include=FALSE}
+colnames(df_full)
+
+```
+
+## crating_df_sub1
+```{r crating_df_sub1, echo=FALSE, include=FALSE}
+df_sub1 <- df_full %>% 
+  na.omit() %>% 
+  select(project_number, sdg, institution, institution_country)
+rm(df_full)
+
+
+```
+
+## character_to_factor
+```{r character_to_factor, echo=FALSE, include=FALSE}
+# ref: https://gist.github.com/ramhiser/93fe37be439c480dc26c4bed8aab03dd#gistcomment-3376653
+ df_sub1_factor <- df_sub1 %>% 
+  mutate(across(where(is_character), as_factor))
+
+```
+
+## sdg_colors
+```{r sdg_colors, echo=FALSE, include=FALSE}
+# Renaming "sdg" variable observations
+df_sub1_factor$sdg <- df_sub1_factor$sdg %>%
+  str_replace_all(
+    c(
+  "SDG-01" = "SDG_01", 
+  "SDG-02" = "SDG_02", 
+  "SDG-03" = "SDG_03", 
+  "SDG-04" = "SDG_04", 
+  "SDG-05" = "SDG_05", 
+  "SDG-06" = "SDG_06", 
+  "SDG-07" = "SDG_07", 
+  "SDG-08" = "SDG_08", 
+  "SDG-09" = "SDG_09", 
+  "SDG-10" = "SDG_10", 
+  "SDG-11" = "SDG_11", 
+  "SDG-12" = "SDG_12", 
+  "SDG-13" = "SDG_13", 
+  "SDG-14" = "SDG_14", 
+  "SDG-15" = "SDG_15", 
+  "SDG-16" = "SDG_16", 
+  "SDG-17" = "SDG_17"
+  ))
+
+# Determining color scheme
+sdg_colors <- c(
+  SDG_01 = "#EC1C2E", 
+  SDG_02 = "#D1A028", 
+  SDG_03 = "#279A4A", 
+  SDG_04 = "#C61E32", 
+  SDG_05 = "#EE422C", 
+  SDG_06 = "#02AEDE", 
+  SDG_07 = "#FDB714", 
+  SDG_08 = "#8C1937", 
+  SDG_09 = "#F36C28", 
+  SDG_10 = "#E41586", 
+  SDG_11 = "#FB9E27", 
+  SDG_12 = "#D18D2B", 
+  SDG_13 = "#48783F", 
+  SDG_14 = "#017DB8", 
+  SDG_15 = "#5CBA46", 
+  SDG_16 = "#075588", 
+  SDG_17 = "#183768"
+  )
+
+sdg_order <- c(
+  "SDG_01", "SDG_02", "SDG_03", "SDG_04", "SDG_05",
+  "SDG_06", "SDG_07", "SDG_08", "SDG_09", "SDG_10",
+  "SDG_11", "SDG_12", "SDG_13", "SDG_14", "SDG_15",
+  "SDG_16", "SDG_17"
+  )
+
+```
+
+## sdg_bar_plot
+```{r sdg_bar_plot}
+df_sub1_factor %>% 
+  select(sdg) %>% 
+  group_by(sdg) %>%
+  # mutate(order_by(order_by, desc))
+  ggplot() +
+  geom_bar(
+    mapping = aes(
+      x = sdg,
+      y = ,
+      fill = sdg 
+        )) +
+  coord_flip() +
+  scale_fill_manual(values = sdg_colors) +
+  theme_minimal()
+
+```
+
+## sdg_bar_plot2
+```{r sdg_bar_plot2}
+# adding a "country" variable (CH <> Other)
+df_sub1_factor2 <- df_sub1_factor %>%
+  select(sdg, institution_country) %>% 
+  mutate(
+    country = if_else(institution_country == "Switzerland",
+                      "Switzerland", "Other_Countries"))
+
+# ref: https://www.r-graph-gallery.com/128-ring-or-donut-plot.html
+# add count (n) variable
+df_sub1_factor2 <- df_sub1_factor2 %>% 
+  select(sdg, country) %>% 
+  group_by(sdg, country) %>%
+  summarize(count = n()) 
+
+# plotting
+bPlot <- df_sub1_factor2 %>%
+  ggplot() +
+  geom_col(
+    mapping = aes(
+      x = fct_rev(as_factor(sdg)),
+      y = count,
+      fill = sdg
+        )) +
+  facet_wrap(~ country) +
+  coord_flip() +
+  scale_fill_manual(values = sdg_colors) +
+  labs(x = "") +
+  theme_minimal()
+
+bPlot <- bPlot +
+  theme(legend.position = "none")
+
+```
+
+## sdg_doughnut_plot
+```{r sdg_doughnut_plot}
+
+
+# Compute percentages
+df_sub1_factor2 <- df_sub1_factor2 %>%
+  group_by(country) %>% 
+  mutate(fraction = count / sum(count)) %>% 
+  ungroup()
+
+# Compute the cumulative percentages (top of each rectangle)
+df_sub1_factor2 <- df_sub1_factor2 %>% 
+  mutate(ymax = cumsum(fraction))
+
+# Compute the bottom of each rectangle
+df_sub1_factor2 <- df_sub1_factor2 %>% 
+  mutate(ymin = c(0, head(ymax, n = -1)))
+
+# Make the plot
+dPlot <- ggplot(df_sub1_factor2, 
+       aes(
+         ymax = ymax,
+         ymin = ymin,
+         xmax = 4, 
+         xmin = 3,
+         fill = sdg)) +
+  facet_wrap(~ country) +
+  geom_rect() +
+  coord_polar(theta = "y") +
+  xlim(c(2, 4)) +
+  scale_fill_manual(values = sdg_colors) +
+  theme_void() 
+
+```
+
+## arrange_plots
+```{r arrange_plots}
+?grid.arrange()
+
+compinedPlot <- grid.arrange(bPlot, dPlot, nrow = 2)
+
+
+
+
+```
+
+
+
